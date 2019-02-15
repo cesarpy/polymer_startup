@@ -39,147 +39,223 @@
           }
         </style>
 
-        <div id="pages"></div>
+        <div id="pages" page-size="5">
+            <button id="bfirst" on-click="_hola"><<</button>
+            <button id="bprev" on-click="_hola"><</button>
+            <button id="b0" on-click="_hola">dd</button>
+            <button id="b1" on-click="_hola">dd</button>
+            <button id="b2" on-click="_hola">dd</button>
+            <button id="b3" on-click="_hola">dd</button>
+            <button id="b4" on-click="_hola">dd</button>
+            <button id="bnext" on-click="_hola">></button>
+            <button id="blast" on-click="_hola">>></button>
+
+        </div>
     </template>
 
     <script>
-        class PaginationGrid extends Polymer.Element {
-            static get is() {
-                return 'pagination-grid';
-              }
+        document.addEventListener('WebComponentsReady', function() {
 
-            constructor() {
-                super();
-            }
+            class PaginationGrid extends Polymer.Element {
+                static get is() {
+                    return 'pagination-grid';
+                  }
 
-            connectedCallback() {
-              super.connectedCallback();
-              console.log("connectedCallback llamar al update");
+                constructor() {
+                    super();
+                }
 
-             Polymer.RenderStatus.afterNextRender(this, () => {
-                const pagesControl = this.shadowRoot.querySelector('#pages');
-                console.log("callback "+pagesControl);
-               this.updateItemsFromPage(0, 5)
-              });
+                connectedCallback() {
+                  super.connectedCallback();
+                  console.log("connectedCallback llamar al update");
 
-            }
+                 //Polymer.RenderStatus.afterNextRender(this, () => {
+                   this._updateItemsFromPage(0)
+                  //});
 
-            ready() {
-              super.ready();
+                }
 
-            }
+                ready() {
+                  super.ready();
+
+                }
+
+                _hola(e){
+                    this._updateItemsFromPage(e.target.getAttribute('index'))
+                }
 
 
-            updateItemsFromPage(currPage, pageSize) {
+                _updateItemsFromPage(currPage) {
 
-                let pages;
-                const pagesControl = this.shadowRoot.querySelector('#pages');
+                    let pages;
+                    const pagesControl = this.shadowRoot.querySelector('#pages');
+                    let pageSize = pagesControl.getAttribute('page-size')
 
-               if (pageSize === undefined) {
-                 return;
+                   if (pageSize === undefined) {
+                     return;
+                   }
+
+                   var miInit = { method: 'GET',
+                      mode: 'no-cors'
+                   };
+
+                   console.log("entramos ahora al fetch");
+
+                   let self = this;
+                   fetch('https://desarrollo.bbva.com.py/softoken/YaguareteBE/api/security/v1/software-tokens?orderBy=id&order=ASC&pageSize='+pageSize+'&paginationKey='+currPage)
+                     .then(res => res.json())
+                     .then(function(response) {
+                         //console.log("response");
+                         //console.log(response);
+                         console.log("el curr "+currPage);
+
+                         let datos = response.data;
+                         let paginacion = response.pagination;
+                         const selectedPage = paginacion.page;
+                         const lastPage = paginacion.totalPages - 1;
+
+                         if (!pages) {
+
+                           //pages = paginacion.totalPages;
+                           const maxBtns = 5;
+
+                           pages = [];
+
+                           pages.push(selectedPage);
+                           let aux = selectedPage - 1;
+                           while(selectedPage != 0 && aux>=0 && aux!=selectedPage-3){
+                               pages.unshift(aux);
+                               aux--;
+                           }
+                           aux = selectedPage + 1;
+                           while(lastPage != selectedPage && aux<=lastPage && aux!=selectedPage+3){
+                               pages.push(aux);
+                               aux++;
+                           }
+
+                           //Array.from([0, 1, 2], x => x);
+
+
+                           //el inicio, que siempre es la pag 0
+                           const firstBtn =  self.shadowRoot.querySelector("#bfirst");
+                           firstBtn.setAttribute('index','0');
+
+                           const prevBtn = self.shadowRoot.querySelector("#bprev");
+                           prevBtn.setAttribute('index',selectedPage - 1);
+
+                           //para todas las paginas
+                           pages.forEach(function(pageNumber,ix) {
+                             const pageBtn = self.shadowRoot.querySelector("#b"+ix);
+                             pageBtn.textContent = pageNumber + 1;
+                             pageBtn.setAttribute('index',pageNumber);
+
+                             if (pageNumber == currPage) {
+                               pageBtn.setAttribute('selected', true);
+                             }
+                           });
+
+
+                           const nextBtn =  self.shadowRoot.querySelector("#bnext");
+                           nextBtn.setAttribute('index',selectedPage + 1);
+
+                           const lastBtn =  self.shadowRoot.querySelector("#blast");
+                           lastBtn.setAttribute('index',lastPage);
+
+
+                           /*firstBtn.textContent = '<<';
+                           firstBtn.addEventListener('click', function() {
+                             self._updateItemsFromPage(0, pageSize);
+                           });
+                           pagesControl.appendChild(firstBtn);*/
+
+                           /*const prevBtn = document.createElement('button');
+                           prevBtn.textContent = '<';
+                           prevBtn.addEventListener('click', function() {
+                             const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
+                             self._updateItemsFromPage(selectedPage - 1, pageSize);
+                           });
+                           pagesControl.appendChild(prevBtn);
+
+
+                           //para todas las paginas
+                           pages.forEach(function(pageNumber) {
+                             const pageBtn =  document.createElement('button');
+                             pageBtn.textContent = pageNumber;
+                             // pageBtn.addEventListener('click', function(e) {
+                             //   //this._updateItemsFromPage(parseInt(e.target.textContent)-1, pageSize);
+                             //   this._hola();
+                             // });
+                             pageBtn.addEventListener('click', (e) =>{
+                                 console.log(e);
+                                 console.log(this);
+                               self._hola();
+                           });
+                             if (pageNumber === currPage) {
+                               pageBtn.setAttribute('selected', true);
+                             }
+                             pagesControl.appendChild(pageBtn);
+                           });
+
+                           const nextBtn = window.document.createElement('button');
+                           nextBtn.textContent = '>';
+                           nextBtn.addEventListener('click', function() {
+                             const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
+                             this._updateItemsFromPage(selectedPage + 1, pageSize);
+                           });
+                           pagesControl.appendChild(nextBtn);
+
+                           const lastBtn = window.document.createElement('button');
+                           lastBtn.textContent = '>>';
+                           lastBtn.addEventListener('click', function() {
+                             this._updateItemsFromPage(paginacion.totalPages - 1, pageSize);
+                           });
+                           pagesControl.appendChild(lastBtn);*/
+                         }
+
+
+
+                         const buttons = Array.from(pagesControl.children);
+                         buttons.forEach(function(btn, index) {
+
+                            //los botones numericos
+                            if(index > 1 && index < buttons.length - 1){
+                                if (parseInt(btn.getAttribute("index")) == currPage) {
+                                  btn.setAttribute('selected', true);
+                                } else {
+                                  btn.removeAttribute('selected');
+                                }
+                            }
+
+
+                           //si es la primera pagina entonces el first y el prev se desabilitan
+                           if (index == 0 || index == 1) {
+                             if (currPage == 0) {
+                               btn.setAttribute('disabled', '');
+                             } else {
+                               btn.removeAttribute('disabled');
+                             }
+                           }
+
+
+                           if (index == buttons.length - 1 && index == buttons.length - 2) {
+                             if (currPage == lastPage) {
+                               btn.setAttribute('disabled', '');
+                             } else {
+                               btn.removeAttribute('disabled');
+                             }
+                         }
+                       });
+
+                         console.log("Solo imprimimos "+datos);
+                         //grid.items = datos
+
+                   });
+
                }
+            }
+            customElements.define(PaginationGrid.is, PaginationGrid);
+        });
 
-               var miInit = { method: 'GET',
-                  mode: 'no-cors'
-               };
-
-               console.log("entramos ahora al fetch");
-
-               fetch('https://desarrollo.bbva.com.py/softoken/YaguareteBE/api/security/v1/software-tokens?orderBy=id&order=ASC&pageSize='+pageSize+'&paginationKey='+currPage)
-                 .then(res => res.json())
-                 .then(function(response) {
-                     //console.log("response");
-                     //console.log(response);
-                     console.log("el curr "+currPage);
-
-                     let datos = response.data;
-                     let paginacion = response.pagination;
-
-
-                     if (!pages) {
-
-                       //pages = paginacion.totalPages;
-                       const maxBtns = 5;
-                       pages = Array.from([1, 2, 3], x => x);
-
-                       const firstBtn = window.document.createElement('button');
-                       firstBtn.textContent = '<<';
-                       firstBtn.addEventListener('click', function() {
-                         this.updateItemsFromPage(0, pageSize);
-                       });
-                       pagesControl.appendChild(firstBtn);
-
-                       const prevBtn = window.document.createElement('button');
-                       prevBtn.textContent = '<';
-                       prevBtn.addEventListener('click', function() {
-                         const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
-                         this.updateItemsFromPage(selectedPage - 1, pageSize);
-                       });
-                       pagesControl.appendChild(prevBtn);
-
-                       //para todas las paginas
-                       pages.forEach(function(pageNumber) {
-                         const pageBtn =  document.createElement('button');
-                         pageBtn.textContent = pageNumber;
-                         pageBtn.addEventListener('on-click', function(e) {
-                           this.updateItemsFromPage(parseInt(e.target.textContent)-1, pageSize);
-                         });
-                         if (pageNumber === currPage) {
-                           pageBtn.setAttribute('selected', true);
-                         }
-                         pagesControl.appendChild(pageBtn);
-                       });
-
-                       const nextBtn = window.document.createElement('button');
-                       nextBtn.textContent = '>';
-                       nextBtn.addEventListener('click', function() {
-                         const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
-                         this.updateItemsFromPage(selectedPage + 1, pageSize);
-                       });
-                       pagesControl.appendChild(nextBtn);
-
-                       const lastBtn = window.document.createElement('button');
-                       lastBtn.textContent = '>>';
-                       lastBtn.addEventListener('click', function() {
-                         this.updateItemsFromPage(paginacion.totalPages - 1, pageSize);
-                       });
-                       pagesControl.appendChild(lastBtn);
-                     }
-
-
-
-                     const buttons = Array.from(pagesControl.children);
-                     buttons.forEach(function(btn, index) {
-                       let paginaNormal = currPage+1;
-                       if (parseInt(btn.textContent) === paginaNormal) {
-                         btn.setAttribute('selected', true);
-                       } else {
-                         btn.removeAttribute('selected');
-                       }
-                       if (index === 0) {
-                         if (paginaNormal === 1) {
-                           btn.setAttribute('disabled', '');
-                         } else {
-                           btn.removeAttribute('disabled');
-                         }
-                       }
-                       if (index === buttons.length - 1) {
-                         if (paginaNormal === pages.length) {
-                           btn.setAttribute('disabled', '');
-                         } else {
-                           btn.removeAttribute('disabled');
-                         }
-                       }
-                     });
-
-                     console.log("Solo imprimimos "+datos);
-                     //grid.items = datos
-
-               });
-
-           }
-        }
-        customElements.define(PaginationGrid.is, PaginationGrid);
     </script>
 </dom-module>
 
