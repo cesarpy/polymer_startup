@@ -1,6 +1,8 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../iron-icons/iron-icons.html">
 <link rel="import" href="../icon-toggle.html">
+<link rel="import" href="../life-cycle.html">
+<link rel="import" href="../pagination-grid.html">
 
 
 <dom-module id="demo-element">
@@ -11,10 +13,17 @@
         --icon-toggle-color: lightgrey;
         --icon-toggle-outline-color: black;
         --icon-toggle-pressed-color: red;
+        --my-theme-color: red;
+        --my-custom-mixin: {
+            color: white;
+            background-color: blue;
+          }
       }
     </style>
 
     <h3>Statically-configured icon-toggles</h3>
+    <life-cycle user="Scott" manager>swaeada</life-cycle>
+    <br>
 
     <icon-toggle toggle-icon="polymer"></icon-toggle>
     <icon-toggle toggle-icon="star"></icon-toggle>
@@ -28,9 +37,12 @@
 
     <!-- curly brackets ({{}}} allow two-way binding -->
     <icon-toggle toggle-icon="favorite" pressed="{{isFav}}"></icon-toggle>
+
+    <pagination-grid></pagination-grid>
   </template>
 
   <script>
+
     class DemoElement extends Polymer.Element {
       static get is() { return 'demo-element' }
       _message(fav) {

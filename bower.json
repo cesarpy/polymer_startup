@@ -13,6 +13,8 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
     "iron-icon": "PolymerElements/iron-icon#^2.0.0",
-    "iron-icons": "PolymerElements/iron-icons#^2.0.0"
+    "iron-icons": "PolymerElements/iron-icons#^2.0.0",
+    "vaadin-grid": "vaadin/vaadin-grid#^5.3.1",
+    "iron-ajax": "PolymerElements/iron-ajax#^3.0.1"
   }
 }

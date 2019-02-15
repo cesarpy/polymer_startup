@@ -1,0 +1,104 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+
+<dom-module  id="life-cycle">
+
+<template>
+    <style>
+        :host {
+          color: var(--my-theme-color, blue);
+          @apply --my-custom-mixin;
+        }
+    </style>
+    <header>
+      <h1><slot></slot></h1>
+      <button>Menu</button>
+    </header>
+  </template>
+  <script>
+    class LifeCycle extends Polymer.Element {
+      static get is() {
+        return 'life-cycle';
+      }
+
+      constructor() {
+        super();
+      }
+
+      //definir las propiedades del elemento
+      /*
+      type 	Type: constructor
+      Attribute type, used for deserializing from an attribute.
+      Polymer supports deserializing the following types: Boolean, Date, Number, String, Array and Object. You can add support for other types by overriding the element's _deserializeValue method.
+
+      value 	Type: boolean, number, string or function.
+      Default value for the property. If value is a function, the function is invoked and the return value is used as the default value of the property. If the default value should be an array or object unique to the instance, create the array or object inside a function. See Configuring default property values for more information.
+
+      reflectToAttribute 	Type: boolean
+      Set to true to cause the corresponding attribute to be set on the host node when the property value changes. If the property value is Boolean, the attribute is created as a standard HTML boolean attribute (set if true, not set if false). For other property types, the attribute value is a string representation of the property value. Equivalent to reflect in Polymer 0.5. See Reflecting properties to attributes for more information.
+
+      readOnly 	Type: boolean
+      If true, the property can't be set directly by assignment or data binding. See Read-only properties.
+
+      notify 	Type: boolean
+      If true, the property is available for two-way data binding. In addition, an event, property-name-changed is fired whenever the property changes. See Property change notification events (notify) for more information.
+
+      computed 	Type: string
+      observer 	Type: string
+      */
+      //If no other properties options are specified for a property, the type (specified using the type constructor, e.g. Object, String, etc.) can be set directly as the value of the property in the properties object
+//The value in the properties object may either be a primitive value, or a function that returns a value.
+//If you provide a function, Polymer calls the function once per element instance.
+      static get properties() {
+          return {
+            user: String,
+            isHappy: Boolean,
+            count:
+            {
+              type: Number,
+              readOnly: true,
+              notify: true
+            },
+            manager: {
+              type: Boolean,
+              notify: true
+          },
+          data: {
+            type: Object,
+            notify: true,
+            value: function() { return {}; }
+          }
+        }
+    }
+
+      // Element class can define custom element reactions
+      connectedCallback() {
+        super.connectedCallback();
+        console.log("connectedCallback");
+
+        // render
+        //this.textContent = 'Hello World, my user is ' + (this.user || 'nobody') + '.\n' +
+       //'This user is ' + (this.manager ? '' : 'not') + ' a manager.';
+
+      }
+
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        console.log("disconnectedCallback");
+      }
+
+      // attributeChangedCallback() {
+      //   super.attributeChangedCallback();
+      //   console.log("attributeChangedCallback");
+      // }
+
+      ready() {
+        super.ready();
+        console.log("ready");
+      }
+
+    }
+    customElements.define(LifeCycle.is, LifeCycle);
+  </script>
+
+</dom-module>

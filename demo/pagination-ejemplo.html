@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script>
+      /*
+      window.Polymer = window.Polymer || {};
+      window.Polymer.dom = 'shadow';
+      */
+    </script>
+    <link rel="import" href="demo-element.html">
+    <link rel="import" href="../../vaadin-grid/vaadin-grid.html">
+    <link rel="import" href="../../vaadin-grid/vaadin-grid-selection-column.html">
+    <link rel="import" href="../../vaadin-grid/vaadin-grid-sort-column.html">
+
+
+    <style>
+      #pages {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 20px;
+      }
+
+      #pages > button {
+        user-select: none;
+        padding: 5px;
+        margin: 0 5px;
+        border-radius: 10%;
+        border: 0;
+        background: transparent;
+        font: inherit;
+        outline: none;
+        cursor: pointer;
+      }
+
+      #pages > button:not([disabled]):hover,
+      #pages > button:focus {
+        color: #ccc;
+        background-color: #eee;
+      }
+
+      #pages > button[selected] {
+        font-weight: bold;
+        color: white;
+        background-color: #ccc;
+      }
+
+      #pages > button[disabled] {
+        opacity: 0.5;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+
+    <vaadin-grid theme="row-dividers" page-size="5" height-by-rows>
+      <vaadin-grid-column id="idCustomer" width="9em" path="customer.customerId" header="Número Documento"></vaadin-grid-column>
+      <vaadin-grid-column id="idDevice" width="9em" path="deviceIdentifier" header="ID Dispositivo"></vaadin-grid-column>
+      <vaadin-grid-column id="marcaDevice" width="9em" header="Marca"></vaadin-grid-column>
+      <vaadin-grid-column id="modeloDevice" width="9em" header="Modelo"></vaadin-grid-column>
+      <vaadin-grid-column id="sistemaDevice" width="9em" path="device.os" header="Sistema"></vaadin-grid-column>
+      <vaadin-grid-column id="sistemaVersionDevice" width="9em" path="device.osVersion" header="Sistema Versión"></vaadin-grid-column>
+      <vaadin-grid-column id="aliasDevice" width="9em" path="device.alias" header="Alias"></vaadin-grid-column>
+  </vaadin-grid>
+
+  <div id="pages"></div>
+  </body>
+  <script>
+
+      window.addEventListener('WebComponentsReady', function() {
+       // Assign an array of user objects as the grid's items
+      // document.querySelector('vaadin-grid').items = Vaadin.GridDemo.users;
+
+      const grid = document.querySelector('vaadin-grid');
+      const pagesControl = document.querySelector('#pages');
+      let pages;
+      //console.log(grid.items);
+      //console.log(grid.items.length);
+
+       // Customize the "Address" column's renderer
+       document.querySelector('#marcaDevice').renderer = (root, grid, rowData) => {
+         root.textContent = rowData.item.device.brand;
+       };
+       document.querySelector('#modeloDevice').renderer = (root, grid, rowData) => {
+         root.textContent = rowData.item.device.model;
+       };
+
+
+         updateItemsFromPage(0, 5)
+
+         function updateItemsFromPage(currPage, pageSize) {
+
+            if (pageSize === undefined) {
+              return;
+            }
+
+            var miInit = { method: 'GET',
+               mode: 'no-cors'
+            };
+
+            //console.log("entramos ahora al fetch");
+
+            fetch('https://desarrollo.bbva.com.py/softoken/YaguareteBE/api/security/v1/software-tokens?orderBy=id&order=ASC&pageSize='+pageSize+'&paginationKey='+currPage)
+              .then(res => res.json())
+              .then(function(response) {
+                  //console.log("response");
+                  //console.log(response);
+                  console.log("el curr "+currPage);
+
+                  datos = response.data;
+                  paginacion = response.pagination;
+
+
+                  if (!pages) {
+
+                    //pages = paginacion.totalPages;
+                    const maxBtns = 5;
+                    pages = Array.from([1, 2, 3], x => x);
+
+                    const firstBtn = window.document.createElement('button');
+                    firstBtn.textContent = '<<';
+                    firstBtn.addEventListener('click', function() {
+                      updateItemsFromPage(0, pageSize);
+                    });
+                    pagesControl.appendChild(firstBtn);
+
+                    const prevBtn = window.document.createElement('button');
+                    prevBtn.textContent = '<';
+                    prevBtn.addEventListener('click', function() {
+                      const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
+                      updateItemsFromPage(selectedPage - 1, pageSize);
+                    });
+                    pagesControl.appendChild(prevBtn);
+
+                    //para todas las paginas
+                    pages.forEach(function(pageNumber) {
+                      const pageBtn = window.document.createElement('button');
+                      pageBtn.textContent = pageNumber;
+                      pageBtn.addEventListener('click', function(e) {
+                        updateItemsFromPage(parseInt(e.target.textContent)-1, pageSize);
+                      });
+                      if (pageNumber === currPage) {
+                        pageBtn.setAttribute('selected', true);
+                      }
+                      pagesControl.appendChild(pageBtn);
+                    });
+
+                    const nextBtn = window.document.createElement('button');
+                    nextBtn.textContent = '>';
+                    nextBtn.addEventListener('click', function() {
+                      const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
+                      updateItemsFromPage(selectedPage + 1, pageSize);
+                    });
+                    pagesControl.appendChild(nextBtn);
+
+                    const lastBtn = window.document.createElement('button');
+                    lastBtn.textContent = '>>';
+                    lastBtn.addEventListener('click', function() {
+                      updateItemsFromPage(paginacion.totalPages - 1, pageSize);
+                    });
+                    pagesControl.appendChild(lastBtn);
+                  }
+
+
+
+                  const buttons = Array.from(pagesControl.children);
+                  buttons.forEach(function(btn, index) {
+                    let paginaNormal = currPage+1;
+                    if (parseInt(btn.textContent) === paginaNormal) {
+                      btn.setAttribute('selected', true);
+                    } else {
+                      btn.removeAttribute('selected');
+                    }
+                    if (index === 0) {
+                      if (paginaNormal === 1) {
+                        btn.setAttribute('disabled', '');
+                      } else {
+                        btn.removeAttribute('disabled');
+                      }
+                    }
+                    if (index === buttons.length - 1) {
+                      if (paginaNormal === pages.length) {
+                        btn.setAttribute('disabled', '');
+                      } else {
+                        btn.removeAttribute('disabled');
+                      }
+                    }
+                  });
+
+                  grid.items = datos
+
+            });
+
+        }
+
+
+     });
+
+</script>
+</html>
