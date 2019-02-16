@@ -2,7 +2,11 @@
 <link rel="import" href="../../iron-icons/iron-icons.html">
 <link rel="import" href="../icon-toggle.html">
 <link rel="import" href="../life-cycle.html">
-<link rel="import" href="../pagination-grid.html">
+<link rel="import" href="../estados-softtoken-grid.html">
+
+<link rel="import" href="../../vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../vaadin-grid/vaadin-grid-selection-column.html">
+<link rel="import" href="../../vaadin-grid/vaadin-grid-sort-column.html">
 
 
 <dom-module id="demo-element">
@@ -39,7 +43,17 @@
     <icon-toggle toggle-icon="favorite" pressed="{{isFav}}"></icon-toggle>
 
 
-    <pagination-grid></pagination-grid>
+    <!-- <pagination-grid>
+        <vaadin-grid theme="row-dividers" height-by-rows slot="grid">
+          <vaadin-grid-column id="idCustomer" width="9em" path="customer.customerId" header="Número Documento"></vaadin-grid-column>
+          <vaadin-grid-column id="idDevice" width="9em" path="deviceIdentifier" header="ID Dispositivo"></vaadin-grid-column>
+          <vaadin-grid-column id="sistemaDevice" width="9em" path="device.os" header="Sistema"></vaadin-grid-column>
+          <vaadin-grid-column id="sistemaVersionDevice" width="9em" path="device.osVersion" header="Sistema Versión"></vaadin-grid-column>
+          <vaadin-grid-column id="aliasDevice" width="9em" path="device.alias" header="Alias"></vaadin-grid-column>
+      </vaadin-grid>
+    </pagination-grid> -->
+    <estados-softtoken-grid>
+    </estados-softtoken-grid>
   </template>
 
   <script>

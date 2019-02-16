@@ -37,19 +37,23 @@
             opacity: 0.5;
             cursor: default;
           }
+
+          #pages > button[oculto] {
+              display: none;
+          }
         </style>
 
+        <slot name="grid">holi</slot>
         <div id="pages" page-size="5">
-            <button id="bfirst" on-click="_hola"><<</button>
-            <button id="bprev" on-click="_hola"><</button>
-            <button id="b0" on-click="_hola">dd</button>
-            <button id="b1" on-click="_hola">dd</button>
-            <button id="b2" on-click="_hola">dd</button>
-            <button id="b3" on-click="_hola">dd</button>
-            <button id="b4" on-click="_hola">dd</button>
-            <button id="bnext" on-click="_hola">></button>
-            <button id="blast" on-click="_hola">>></button>
-
+            <button id="bfirst" on-click="_movePage"><<</button>
+            <button id="bprev" on-click="_movePage"><</button>
+            <button id="b0" on-click="_movePage" oculto></button>
+            <button id="b1" on-click="_movePage" oculto></button>
+            <button id="b2" on-click="_movePage" oculto></button>
+            <button id="b3" on-click="_movePage" oculto></button>
+            <button id="b4" on-click="_movePage" oculto></button>
+            <button id="bnext" on-click="_movePage">></button>
+            <button id="blast" on-click="_movePage">>></button>
         </div>
     </template>
 
@@ -68,19 +72,14 @@
                 connectedCallback() {
                   super.connectedCallback();
                   console.log("connectedCallback llamar al update");
-
-                 //Polymer.RenderStatus.afterNextRender(this, () => {
-                   this._updateItemsFromPage(0)
-                  //});
-
+                  this._updateItemsFromPage(0)
                 }
 
                 ready() {
                   super.ready();
-
                 }
 
-                _hola(e){
+                _movePage(e){
                     this._updateItemsFromPage(e.target.getAttribute('index'))
                 }
 
@@ -91,6 +90,12 @@
                     const pagesControl = this.shadowRoot.querySelector('#pages');
                     let pageSize = pagesControl.getAttribute('page-size')
 
+                     //const grid = this.shadowRoot.querySelector( 'slot' ).assignedNodes()[1];
+                     const grid = this.firstElementChild; //TODO ver una mejor forma de traer el grid del slot
+
+                     console.log(grid);
+                     let fakedata = JSON.parse('{"data":[{"id":"BB-04-PY0400000763","status":{"id":"ACTIVE","name":"Software Token activo y listo para uso"},"deviceIdentifier":"84172c73-5f5e-485b-a719-cc9c8c310f22","activationDate":"2019-02-11 14:40:18.682","customer":{"customerId":"403281","customerName":"FFFF FFFF FFFF FFFF","phoneNumber":"0981240328"},"device":{"id":"84172c73-5f5e-485b-a719-cc9c8c310f22","alias":"iPhone de Maria lorena","brand":"APPLE","model":"iPhone11,8","os":"IOS","osVersion":"12.1.3"}},{"id":"BB-04-PY0400000764","status":{"id":"PENDING_VALIDATION","name":"Software Token pendiente de activacion via Callback"},"deviceIdentifier":"ba8fe3db-d25a-4734-88ce-fde9109213d9","activationDate":"2019-02-11 14:44:48.794","customer":{"customerId":"403282","customerName":"FFFF FFFF FFFF FFFF","phoneNumber":"0981440328"},"device":{"id":"ba8fe3db-d25a-4734-88ce-fde9109213d9","brand":"HUAWEI","model":"BAC-L23","os":"REL","osVersion":"8.0.0"}},{"id":"BB-04-PY0400000765","status":{"id":"LOCKED","name":"Software Token bloqueado"},"deviceIdentifier":"181c06a7-2ab1-4d68-8fec-a012bcd57271","activationDate":"2019-02-11 14:47:27.875","customer":{"customerId":"403283","customerName":"FFFF FFFF FFFF FFFF","phoneNumber":"0961240328"},"device":{"id":"181c06a7-2ab1-4d68-8fec-a012bcd57271","brand":"samsung","model":"SM-G610F","os":"REL","osVersion":"6.0.1"}},{"id":"BB-04-PY0400000766","status":{"id":"DISABLED","name":"Software Token desactivado"},"deviceIdentifier":"acc48980-47fc-46ad-84cf-cac7b265afbf","activationDate":"2019-02-11 14:49:15.887","customer":{"customerId":"403284","customerName":"FFFF FFFF FFFF FFFF","phoneNumber":"0981240328"},"device":{"id":"acc48980-47fc-46ad-84cf-cac7b265afbf","alias":"iPhone de jhonathan","brand":"APPLE","model":"iPhone7,2","os":"IOS","osVersion":"12.1.2"}},{"id":"BB-04-PY0400000767","status":{"id":"ACTIVE","name":"Software Token activo y listo para uso"},"deviceIdentifier":"37c00357-dacc-4037-9ac8-320deaba5db0","activationDate":"2019-02-11 14:51:37.089","customer":{"customerId":"403285","customerName":"FFFF FFFF FFFF FFFF","phoneNumber":"0981240328"},"device":{"id":"37c00357-dacc-4037-9ac8-320deaba5db0","brand":"HUAWEI","model":"LDN-LX3","os":"REL","osVersion":"8.0.0"}}],"pagination":{"page":0,"totalPages":3,"totalElements":14,"pageSize":5,"links":{"first":"https://desarrollo.bbva.com.py/softoken/YaguareteBE/api/security/v1/software-tokens?orderBy\u003did\u0026order\u003dASC\u0026pageSize\u003d5\u0026paginationKey\u003d0","next":"https://desarrollo.bbva.com.py/softoken/YaguareteBE/api/security/v1/software-tokens?orderBy\u003did\u0026order\u003dASC\u0026pageSize\u003d5\u0026paginationKey\u003d1","last":"https://desarrollo.bbva.com.py/softoken/YaguareteBE/api/security/v1/software-tokens?orderBy\u003did\u0026order\u003dASC\u0026pageSize\u003d5\u0026paginationKey\u003d2"}}}');
+                     grid.items = fakedata.data;
                    if (pageSize === undefined) {
                      return;
                    }
@@ -133,8 +138,6 @@
                                aux++;
                            }
 
-                           //Array.from([0, 1, 2], x => x);
-
 
                            //el inicio, que siempre es la pag 0
                            const firstBtn =  self.shadowRoot.querySelector("#bfirst");
@@ -149,6 +152,8 @@
                              pageBtn.textContent = pageNumber + 1;
                              pageBtn.setAttribute('index',pageNumber);
 
+                             pageBtn.removeAttribute('oculto');
+
                              if (pageNumber == currPage) {
                                pageBtn.setAttribute('selected', true);
                              }
@@ -160,61 +165,10 @@
 
                            const lastBtn =  self.shadowRoot.querySelector("#blast");
                            lastBtn.setAttribute('index',lastPage);
+                       }
 
-
-                           /*firstBtn.textContent = '<<';
-                           firstBtn.addEventListener('click', function() {
-                             self._updateItemsFromPage(0, pageSize);
-                           });
-                           pagesControl.appendChild(firstBtn);*/
-
-                           /*const prevBtn = document.createElement('button');
-                           prevBtn.textContent = '<';
-                           prevBtn.addEventListener('click', function() {
-                             const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
-                             self._updateItemsFromPage(selectedPage - 1, pageSize);
-                           });
-                           pagesControl.appendChild(prevBtn);
-
-
-                           //para todas las paginas
-                           pages.forEach(function(pageNumber) {
-                             const pageBtn =  document.createElement('button');
-                             pageBtn.textContent = pageNumber;
-                             // pageBtn.addEventListener('click', function(e) {
-                             //   //this._updateItemsFromPage(parseInt(e.target.textContent)-1, pageSize);
-                             //   this._hola();
-                             // });
-                             pageBtn.addEventListener('click', (e) =>{
-                                 console.log(e);
-                                 console.log(this);
-                               self._hola();
-                           });
-                             if (pageNumber === currPage) {
-                               pageBtn.setAttribute('selected', true);
-                             }
-                             pagesControl.appendChild(pageBtn);
-                           });
-
-                           const nextBtn = window.document.createElement('button');
-                           nextBtn.textContent = '>';
-                           nextBtn.addEventListener('click', function() {
-                             const selectedPage = parseInt(pagesControl.querySelector('[selected]').textContent) -1;
-                             this._updateItemsFromPage(selectedPage + 1, pageSize);
-                           });
-                           pagesControl.appendChild(nextBtn);
-
-                           const lastBtn = window.document.createElement('button');
-                           lastBtn.textContent = '>>';
-                           lastBtn.addEventListener('click', function() {
-                             this._updateItemsFromPage(paginacion.totalPages - 1, pageSize);
-                           });
-                           pagesControl.appendChild(lastBtn);*/
-                         }
-
-
-
-                         const buttons = Array.from(pagesControl.children);
+                         const buttons = Array.from(pagesControl.children)
+                            .filter((b) => !b.hasAttribute("oculto"));
                          buttons.forEach(function(btn, index) {
 
                             //los botones numericos
@@ -237,7 +191,7 @@
                            }
 
 
-                           if (index == buttons.length - 1 && index == buttons.length - 2) {
+                           if (index == buttons.length - 1 || index == buttons.length - 2) {
                              if (currPage == lastPage) {
                                btn.setAttribute('disabled', '');
                              } else {
@@ -247,7 +201,7 @@
                        });
 
                          console.log("Solo imprimimos "+datos);
-                         //grid.items = datos
+                         grid.items = datos
 
                    });
 
@@ -258,41 +212,3 @@
 
     </script>
 </dom-module>
-
-<!--
-
-  </head>
-  <body>
-
-    <vaadin-grid theme="row-dividers" page-size="5" height-by-rows>
-      <vaadin-grid-column id="idCustomer" width="9em" path="customer.customerId" header="Número Documento"></vaadin-grid-column>
-      <vaadin-grid-column id="idDevice" width="9em" path="deviceIdentifier" header="ID Dispositivo"></vaadin-grid-column>
-      <vaadin-grid-column id="marcaDevice" width="9em" header="Marca"></vaadin-grid-column>
-      <vaadin-grid-column id="modeloDevice" width="9em" header="Modelo"></vaadin-grid-column>
-      <vaadin-grid-column id="sistemaDevice" width="9em" path="device.os" header="Sistema"></vaadin-grid-column>
-      <vaadin-grid-column id="sistemaVersionDevice" width="9em" path="device.osVersion" header="Sistema Versión"></vaadin-grid-column>
-      <vaadin-grid-column id="aliasDevice" width="9em" path="device.alias" header="Alias"></vaadin-grid-column>
-  </vaadin-grid> -->
-
-<!--
-  </body>
-  <script>
-
-      window.addEventListener('WebComponentsReady', function() {
-       // Assign an array of user objects as the grid's items
-      // document.querySelector('vaadin-grid').items = Vaadin.GridDemo.users;
-
-      const grid = document.querySelector('vaadin-grid');
-
-      let pages;
-
-
-
-
-
-
-
-     });
-
-</script>
-</html> -->
